@@ -17,19 +17,9 @@ namespace Assets.Scripts.Enemies
         public string OperationName;
         public float OperationValue;
 
-        private AudioSource _audio;
-        private Rigidbody _rigidbody;
-
         private void Start()
         {
             RandomAction();
-        }
-
-        protected override void Awake()
-        {
-            _audio = GetComponent<AudioSource>();
-            _rigidbody = GetComponent<Rigidbody>();
-            base.Awake();
         }
 
         protected override void Update()
@@ -75,6 +65,17 @@ namespace Assets.Scripts.Enemies
             yield break;
         }
 
+        public void ApplyExpulsion(Vector3 force)
+        {
+            if (NavMeshAgent.isActiveAndEnabled)
+            {
+                NavMeshAgent.Stop();
+            }
+            Rigidbody.isKinematic = false;
+            Rigidbody.useGravity = true;
+            Rigidbody.AddForce(force, ForceMode.Impulse);
+        }
+
         /// <summary>
         /// Méthode qui permet de gérer les encaissement de notre personnage ainsi que ses esquives
         /// </summary>
@@ -82,7 +83,6 @@ namespace Assets.Scripts.Enemies
         {
 
             base.ApplyDamage(model);
-
 
             var relativePos = MyCharacterController.Instance.transform.position - transform.position;
             var lookRot = Quaternion.LookRotation(relativePos);
@@ -108,15 +108,19 @@ namespace Assets.Scripts.Enemies
                                 ActivateEndOfHitAnimationTrigger = true;
                                 GettingHit = true;
                                 Life -= (200 * model.AttackMultiplicator);
-
+                 
                                 PlayRandomPainAudioClip();
 
                                 if (_weakHitParticle == null)
                                 {
                                     _weakHitParticle = Resources.Load<GameObject>("Particles/CFX_Prefabs_Mobile/Hits/CFXM_Hit_A Red");
                                 }
+                                if (_weakHitParticle != null)
+                                {
+                                    Instantiate(_weakHitParticle, transform.position, Quaternion.identity);
+                                }
 
-                                Instantiate(_weakHitParticle, transform.position, Quaternion.identity);
+                                ApplyExpulsion(transform.forward * 5);
 
                             }
                             else
@@ -139,8 +143,10 @@ namespace Assets.Scripts.Enemies
                                 {
                                     _mediumHitParticle = Resources.Load<GameObject>("Particles/CFX_Prefabs_Mobile/Hits/CFXM_Hit_A Red");
                                 }
-
-                                Instantiate(_mediumHitParticle, transform.position, Quaternion.identity);
+                                if (_mediumHitParticle != null)
+                                {
+                                    Instantiate(_mediumHitParticle, transform.position, Quaternion.identity);
+                                }
                                 StartCoroutine(WaitAndRandomAction(Random.Range(0.5f, 1.5f)));
                             }
                             else
@@ -154,7 +160,6 @@ namespace Assets.Scripts.Enemies
 
                     case AttackTypes.Strong:
                         {
-                            print("!!!!!!!!!! STRONG !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                             CharAnimator.SetTrigger("hit_strong_attack");
 
                             ActivateEndOfHitAnimationTrigger = true;
@@ -215,7 +220,7 @@ namespace Assets.Scripts.Enemies
                             GettingHit = true;
                             Life -= 200;
                             CharAnimator.Play("ReceivePunchComboAttack");
-                            _rigidbody.AddForce(Vector3.up * 10f);
+                            Rigidbody.AddForce(Vector3.up * 10f);
                             RandomAction();
                         }
                         break;
@@ -319,7 +324,6 @@ namespace Assets.Scripts.Enemies
             {
                 panel.color = new Color(.607f, .35f, .713f, .4f);
             }
-            print(panel.color);
         }
 
         protected override void Die()
@@ -328,7 +332,7 @@ namespace Assets.Scripts.Enemies
             var bip = Resources.Load<AudioClip>("Audios/Bip");
             if (bip != null)
             {
-                _audio.PlayOneShot(bip);
+                Audio.PlayOneShot(bip);
             }
             GameManager.instance.Coins += OperationValue;
             var obj = (GameObject)Instantiate(MyCharacterController.Instance.SmashTextObject, Vector3.zero, Quaternion.identity);

@@ -115,8 +115,6 @@ public abstract class Player : MonoBehaviour
             CharAnimator.SetBool("right_attack", RightAttack);
         }
 
-        Debug.Log("ActivateEndOfHitAnimationTrigger = " + ActivateEndOfHitAnimationTrigger);
-
         if (ActivateEndOfHitAnimationTrigger)
         {
             CheckEndOfHitAnimation();

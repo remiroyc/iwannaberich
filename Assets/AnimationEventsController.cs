@@ -1,40 +1,52 @@
 ﻿using UnityEngine;
-using System.Collections;
 
-public class AnimationEventsController : MonoBehaviour {
+public class AnimationEventsController : MonoBehaviour
+{
     public MeleeWeaponTrail swordTrail;
     public GameObject ripFx;
     public GameObject hitFX;
     public MeleeWeaponTrail trail;
 
-    void Start()
+    private AudioSource _audio;
+
+    void Awake()
     {
-        
+        _audio = GetComponentInParent<AudioSource>();
+        if (_audio == null)
+        {
+            Debug.LogError("AudioSource null");
+        }
     }
 
-	public void ComboHit(string attackType)
+    public void ComboHit(string attackType)
     {
-
-        var audio = GetComponent<AudioSource>();
-
         switch (attackType)
         {
             case "LateralHit1":
                 trail.enabled = true;
-                audio.PlayOneShot(Resources.Load<AudioClip>("Audios/epee"));
-                Instantiate(ripFx, this.transform.position + this.transform.forward, Quaternion.Euler(new Vector3(0,0,-50)));
+                _audio.PlayOneShot(Resources.Load<AudioClip>("Audios/epee"));
+                if (ripFx != null)
+                {
+                    Instantiate(ripFx, transform.position + transform.forward, Quaternion.Euler(new Vector3(0, 0, -50)));
+                }
                 break;
             case "LateralHit2":
             case "LateralHit3":
                 trail.enabled = true;
-                audio.PlayOneShot(Resources.Load<AudioClip>("Audios/epee"));
-                Instantiate(ripFx, this.transform.position + this.transform.forward, Quaternion.Euler(new Vector3(0, 0, 130)));
+                _audio.PlayOneShot(Resources.Load<AudioClip>("Audios/epee"));
+                if (ripFx != null)
+                {
+                    Instantiate(ripFx, transform.position + transform.forward, Quaternion.Euler(new Vector3(0, 0, 130)));
+                }
                 break;
             case "LegHit1":
                 trail.enabled = false;
-                audio.PlayOneShot(Resources.Load<AudioClip>("Audios/weakpunch"));
-                Instantiate(hitFX, this.transform.position + this.transform.forward, Quaternion.identity);
-                break; 
+                _audio.PlayOneShot(Resources.Load<AudioClip>("Audios/weakpunch"));
+                if (hitFX != null)
+                {
+                    Instantiate(hitFX, transform.position + transform.forward, Quaternion.identity);
+                }
+                break;
             case "End":
                 trail.enabled = false;
                 break;

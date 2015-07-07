@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
 using UnityEngine;
-using System.Collections;
 using UnityEngine.UI;
 
 public class TileManager : MonoBehaviour
@@ -9,11 +8,12 @@ public class TileManager : MonoBehaviour
     public enum TileType { Falling, Killing, Jumping, Moving, Rotating, Bonus };
     public TileType tileType;
     public float jumpingTilePower;
-    private bool _hasMoved;
     public Vector3 jumpDirection;
     public int CoinValue;
+    public GameObject BonusParticle, KillingParticle;
 
-    // Update is called once per frame
+    private bool _hasMoved;
+
     void FixedUpdate()
     {
         //this.transform.Rotate(Vector3.down * 10 * Time.deltaTime);
@@ -36,7 +36,10 @@ public class TileManager : MonoBehaviour
                 if (collision.transform.tag == "Player")
                 {
                     MyCharacterController.Instance.CharAnimator.Play("Die");
-                    Instantiate(Resources.Load<GameObject>("Particles/LightningStrike"), this.transform.position, Quaternion.identity);
+                    if (BonusParticle != null)
+                    {
+                        Instantiate(BonusParticle, transform.position, Quaternion.identity);
+                    }
                     GameOverManager.instance.GameOver();
                 }
                 break;
@@ -44,7 +47,11 @@ public class TileManager : MonoBehaviour
                 if (collision.transform.tag == "Player")
                 {
                     AudioSource.PlayClipAtPoint(Resources.Load<AudioClip>("Audios/bonus"), transform.position, 1);
-                    Instantiate(Resources.Load<GameObject>("Particles/BlessedGlyph"), this.transform.position, Quaternion.identity);
+                    if (BonusParticle != null)
+                    {
+                        Instantiate(BonusParticle, transform.position, Quaternion.identity);
+                    }
+
                     GameManager.instance.Coins += int.Parse(CoinValue.ToString(CultureInfo.InvariantCulture));
                     Destroy(gameObject);
 

@@ -68,6 +68,8 @@ public class MyCharacterController : Player
     public Button SwordButton;
     public Quaternion InitialRotation;
 
+    public GameObject CombatRipParticle;
+
     #endregion
 
     #region PRIVATES PROPERTIES
@@ -243,14 +245,10 @@ public class MyCharacterController : Player
 
         if (!KoManager.Ko && !GettingHit && (!Attacking || LoadingSkill) && CanMove && !IsDied)
         {
-            Debug.Log("la : grounded " + Grounded);
-
             //SetPlayerPosition();
             switch (CurrentCharState)
             {
                 case CharacterMoveState.Jumping:
-
-
 
                     SetPlayerVelocity(transform.forward, true);
                     UpdateJumpMovement();
@@ -1162,15 +1160,15 @@ public class MyCharacterController : Player
                 if (!Attacking)
                 {
 
-                    --GameManager.instance.Coins;
-                    var obj = (GameObject)Instantiate(SmashTextObject, Vector3.zero, Quaternion.identity);
-                    obj.SetActive(true);
-                    var text = obj.GetComponent<Text>();
-                    text.text = "-1";
-                    text.color = Color.red;
-                    obj.transform.parent = MainCanvas.transform;
+                    //--GameManager.instance.Coins;
+                    //var obj = (GameObject)Instantiate(SmashTextObject, Vector3.zero, Quaternion.identity);
+                    //obj.SetActive(true);
+                    //var text = obj.GetComponent<Text>();
+                    //text.text = "-1";
+                    //text.color = Color.red;
+                    //obj.transform.parent = MainCanvas.transform;
 
-                    var moveY = InputMovement.y;
+                    //var moveY = InputMovement.y;
 
                     //if (FocusEnemy == null && InputMovement.y > 0)
                     //{
@@ -1253,16 +1251,29 @@ public class MyCharacterController : Player
                                     if (Grounded)
                                     {
                                         skillName = "right_sword_attack";
-                                        Instantiate(Resources.Load<GameObject>("Particles/RipEffectSimple"), transform.position + transform.forward, Quaternion.Euler(new Vector3(0, 0, -90)));
+                                        if (CombatRipParticle != null)
+                                        {
+                                            Instantiate(CombatRipParticle, transform.position + transform.forward, Quaternion.Euler(new Vector3(0, 0, -90)));
+                                        }
                                     }
                                     else
                                     {
                                         skillName = "left_sword_attack";
                                         _rigidbody.AddForce(Vector3.down * 400f);
-                                        _audio.PlayOneShot(Resources.Load<AudioClip>("Audios/teleport2"));
-                                        Instantiate(Resources.Load<GameObject>("Particles/StaticChargeEffect"), transform.position + Vector3.down * 2.5f, Quaternion.identity);
-                                        Instantiate(Resources.Load<GameObject>("Particles/RipEffectSimple"), transform.position + transform.forward, Quaternion.identity);
 
+                                        var teleportAudio = Resources.Load<AudioClip>("Audios/teleport2");
+                                        _audio.PlayOneShot(teleportAudio);
+
+                                        var staticChargeParticle = Resources.Load<GameObject>("Particles/StaticChargeEffect");
+                                        if (staticChargeParticle != null)
+                                        {
+                                            Instantiate(staticChargeParticle, transform.position + Vector3.down * 2.5f, Quaternion.identity);
+                                        }
+
+                                        if (CombatRipParticle != null)
+                                        {
+                                            Instantiate(CombatRipParticle, transform.position + transform.forward, Quaternion.identity);
+                                        }
                                         //Vector3 explosionPos = transform.position;
                                         //Collider[] colliders = Physics.OverlapSphere(explosionPos, 5f);
                                         //foreach (Collider hit in colliders)
@@ -1283,12 +1294,18 @@ public class MyCharacterController : Player
 
                                 case "AA":
                                     skillName = "top_sword_attack";
-                                    Instantiate(Resources.Load<GameObject>("Particles/RipEffectSimple"), transform.position + transform.forward, Quaternion.Euler(new Vector3(0, 0, 180)));
+                                    if (CombatRipParticle != null)
+                                    {
+                                        Instantiate(CombatRipParticle, transform.position + transform.forward, Quaternion.Euler(new Vector3(0, 0, 180)));
+                                    }
                                     break;
 
                                 case "AAA":
                                     skillName = "bottom_sword_attack";
-                                    Instantiate(Resources.Load<GameObject>("Particles/RipEffectSimple"), transform.position + transform.forward, Quaternion.identity);
+                                    if (CombatRipParticle != null)
+                                    {
+                                        Instantiate(CombatRipParticle, transform.position + transform.forward, Quaternion.identity);
+                                    }
                                     break;
 
                                 case "AAAA":
@@ -1376,17 +1393,8 @@ public class MyCharacterController : Player
     {
         _btnClicked = true;
 
-        Debug.Log(string.Format("CanAttack: {0}, LoadingSkill: {1}, GettingHit: {2}", CanAttack, LoadingSkill,
-            GettingHit));
-
         if (!CanAttack || LoadingSkill || GettingHit)
         {
-
-            if (LoadingSkill)
-            {
-                Debug.Log("Skill = " + CurrentSkill);
-            }
-
             _comboQueue.Clear();
         }
         else
@@ -1400,7 +1408,7 @@ public class MyCharacterController : Player
     /// </summary>
     public void StopAttackCharge()
     {
-        Debug.Log("StopAttackCharge()");
+        //Debug.Log("StopAttackCharge()");
         ChargeActivated = false;
 
         _skillCharged = string.Empty;

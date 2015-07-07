@@ -116,7 +116,7 @@ public class StingerAttack : SkillBase
 
     public void FinishAttack()
     {
-        Debug.Log("FinishAttack");
+        //Debug.Log("FinishAttack");
         //MyCharacterController.Instance.FocusEnemy.rigidbody.AddForce(100 * Vector3.up);
 
         //Time.timeScale = 0.5f;

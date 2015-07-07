@@ -31,16 +31,16 @@ public abstract class Enemy : Player, IArtificialIntelligenceAttack
 
     protected bool CloseCombat;
     protected bool ActivateEndOfAnimationTrigger = false;
+    protected Rigidbody Rigidbody;
+    protected AudioSource Audio;
 
-    private Rigidbody _rigidbody;
-    private AudioSource _audio;
     private Vector3 _destinationPos;
     private int _currentAttackState;
     private bool _checkEndAnim;
 
     private const float MaxWaitingTimeBeforeRandomAction = 2f;
 
-    private NavMeshAgent _navMeshAgent;
+    protected NavMeshAgent NavMeshAgent;
 
     /// <summary>
     /// Gets the dodge probability. 
@@ -53,8 +53,8 @@ public abstract class Enemy : Player, IArtificialIntelligenceAttack
 
     protected override void Awake()
     {
-        _rigidbody = GetComponent<Rigidbody>();
-        _audio = GetComponent<AudioSource>();
+        Rigidbody = GetComponent<Rigidbody>();
+        Audio = GetComponent<AudioSource>();
         base.Awake();
     }
 
@@ -62,9 +62,9 @@ public abstract class Enemy : Player, IArtificialIntelligenceAttack
     {
         base.Update();
 
-        if (_navMeshAgent == null)
+        if (NavMeshAgent == null)
         {
-            _navMeshAgent = GetComponent<NavMeshAgent>();
+            NavMeshAgent = GetComponent<NavMeshAgent>();
         }
 
         Distance = Vector3.Distance(transform.position, MyCharacterController.Instance.transform.position);
@@ -75,8 +75,6 @@ public abstract class Enemy : Player, IArtificialIntelligenceAttack
             // Si on est en train d'etre attaqué, on subit les coups sans pouvoir faire aucune action...
             return;
         }
-
-        Debug.Log(CurrentAction);
 
         switch (CurrentAction)
         {
@@ -119,12 +117,14 @@ public abstract class Enemy : Player, IArtificialIntelligenceAttack
         //Debug.Log("CloseCombat: " + CloseCombat);
         if (Grounded)
         {
-            if (CloseCombat || !CanMove && _navMeshAgent != null)
+            if (CloseCombat || !CanMove && NavMeshAgent != null)
             {
                 CurrentAction = EnemyActions.Idle;
-                _navMeshAgent.Stop();
-                _rigidbody.velocity = Vector3.zero;
-
+                if (NavMeshAgent.isActiveAndEnabled)
+                {
+                    NavMeshAgent.Stop();
+                }
+                Rigidbody.velocity = Vector3.zero;
                 if (CanAttack)
                 {
                     StartCoroutine(Attack());
@@ -136,7 +136,12 @@ public abstract class Enemy : Player, IArtificialIntelligenceAttack
                 {
                     CharAnimator.SetFloat("speed", 1);
                 }
-                _navMeshAgent.SetDestination(MyCharacterController.Instance.transform.position);
+
+                if (NavMeshAgent != null && NavMeshAgent.isActiveAndEnabled && NavMeshAgent.isOnNavMesh)
+                {
+                    NavMeshAgent.SetDestination(MyCharacterController.Instance.transform.position);
+                }
+
             }
         }
 
@@ -341,7 +346,7 @@ public abstract class Enemy : Player, IArtificialIntelligenceAttack
             var blast = Resources.Load<GameObject>("Prefabs/Fireball");
             Instantiate(blast, RightAttack ? RightHand.position : LeftHand.position, rot);
             RightAttack = !RightAttack;
-            _audio.PlayOneShot(Resources.Load<AudioClip>("Sounds/kiblast"));
+            Audio.PlayOneShot(Resources.Load<AudioClip>("Sounds/kiblast"));
             yield return new WaitForSeconds(0.6f);
         }
         Attacking = false;
@@ -416,7 +421,7 @@ public abstract class Enemy : Player, IArtificialIntelligenceAttack
     /// </summary>
     public virtual void Dodge()
     {
-        _audio.PlayOneShot(Resources.Load<AudioClip>("Sounds/Generic/Attack/meleemiss1"));
+        Audio.PlayOneShot(Resources.Load<AudioClip>("Sounds/Generic/Attack/meleemiss1"));
 
         if (Random.value > 0.2f && CanAttack)
         {
@@ -482,7 +487,7 @@ public abstract class Enemy : Player, IArtificialIntelligenceAttack
         transform.position = MyCharacterController.Instance.transform.position - MyCharacterController.Instance.transform.forward;
         transform.LookAt(MyCharacterController.Instance.transform);
         // Ajouter le son du tp ici
-        _audio.PlayOneShot(Resources.Load<AudioClip>("Sounds/teleport"));
+        Audio.PlayOneShot(Resources.Load<AudioClip>("Sounds/teleport"));
 
         //yield return new WaitForSeconds(.1f);
 
