@@ -206,12 +206,10 @@ public class AutoFocusScript : MonoBehaviour
                 if (activated)
                 {
                     childRenderer.material.SetColor("_OutlineColor", Color.red);
-                    //childRenderer.material.SetFloat("_Outline", 0.01f);
                 }
                 else
                 {
                     childRenderer.material.SetColor("_OutlineColor", Color.black);
-                    //childRenderer.material.SetFloat("_Outline", 0.005f);
                 }
             }
         }

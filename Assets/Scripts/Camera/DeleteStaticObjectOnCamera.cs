@@ -33,8 +33,11 @@ public class DeleteStaticObjectOnCamera : MonoBehaviour
             if (!TransformDisabled.ContainsKey(hit.transform))
             {
                 var meshRenderer = hit.transform.gameObject.GetComponent<Renderer>();
-                TransformDisabled.Add(hit.transform, meshRenderer.material);
-                meshRenderer.material = DisabledObjetMaterial;
+                if (meshRenderer != null)
+                {
+                    TransformDisabled.Add(hit.transform, meshRenderer.material);
+                    meshRenderer.material = DisabledObjetMaterial;
+                }
             }
         }
     }

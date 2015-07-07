@@ -43,7 +43,10 @@ public class SpawnPoint : MonoBehaviour
         foreach (var enemy in Enemies)
         {
             var charPos = transform.position + Spawnpoint + new Vector3(Random.Range(0, 5f), 0f, Random.Range(0, 5f));
-            Instantiate(SpawnParticle, charPos, Quaternion.identity);
+            if (SpawnParticle != null)
+            {
+                Instantiate(SpawnParticle, charPos, Quaternion.identity);
+            }
             var relativePos = MyCharacterController.Instance.transform.position - transform.position;
             var enemyToAdd = Instantiate(enemy, charPos, Quaternion.LookRotation(relativePos)) as GameObject;
             if (enemyToAdd != null)

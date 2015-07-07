@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
 [Serializable]
@@ -24,9 +23,7 @@ public class PlayerPlanManager : MonoBehaviour
         {
             if (_instance == null)
             {
-                _instance = Object.FindObjectOfType<PlayerPlanManager>();
-
-                //Tell unity not to destroy this object when loading a new scene!
+                _instance = FindObjectOfType<PlayerPlanManager>();
                 DontDestroyOnLoad(_instance.gameObject);
             }
 
@@ -38,16 +35,15 @@ public class PlayerPlanManager : MonoBehaviour
     {
         if (_instance == null)
         {
-            //If I am the first instance, make me the Singleton
             _instance = this;
             DontDestroyOnLoad(this);
         }
         else
         {
-            //If a Singleton already exists and you find
-            //another reference in scene, destroy it!
             if (this != _instance)
-                Destroy(this.gameObject);
+            {
+                Destroy(gameObject);
+            }
         }
     }
 
