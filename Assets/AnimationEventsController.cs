@@ -14,6 +14,9 @@ public class AnimationEventsController : MonoBehaviour {
 
 	public void ComboHit(string attackType)
     {
+
+        var audio = GetComponent<AudioSource>();
+
         switch (attackType)
         {
             case "LateralHit1":

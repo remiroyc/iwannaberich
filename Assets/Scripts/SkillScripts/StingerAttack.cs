@@ -78,13 +78,11 @@ public class StingerAttack : SkillBase
 
     IEnumerator AutoAttack(Transform charTransform = null)
     {
-        Debug.Log("AutoAttack");
-
         _attacked = true;
 
         if (SwordAudio != null)
         {
-            audio.PlayOneShot(SwordAudio, 1);
+            GetComponent<AudioSource>().PlayOneShot(SwordAudio, 1);
         }
 
         MyCharacterController.Instance.CanMove = false;
@@ -92,9 +90,10 @@ public class StingerAttack : SkillBase
         if (charTransform != null)
         {
             MyCharacterController.Instance.CharAnimator.SetTrigger("stinger_collision");
-            charTransform.rigidbody.velocity = Vector3.zero;
+            var charRigidBody = charTransform.GetComponent<Rigidbody>();
+            charRigidBody.velocity = Vector3.zero;
             charTransform.LookAt(transform);
-            charTransform.rigidbody.AddForce(MyCharacterController.Instance.transform.forward * 500);
+            charRigidBody.AddForce(MyCharacterController.Instance.transform.forward * 500);
         }
         else
         {

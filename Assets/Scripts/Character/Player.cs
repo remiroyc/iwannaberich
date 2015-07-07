@@ -182,9 +182,10 @@ public abstract class Player : MonoBehaviour
             var selectedClip = PainAudioClips[nb];
             if (selectedClip != null)
             {
-                if (audio != null && !audio.isPlaying)
+                var audioSource = GetComponent<AudioSource>();
+                if (audioSource != null && !audioSource.isPlaying)
                 {
-                    audio.PlayOneShot(selectedClip, 1);
+                    audioSource.PlayOneShot(selectedClip, 1);
                 }
                 else
                 {

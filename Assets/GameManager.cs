@@ -135,6 +135,6 @@ public class GameManager : MonoBehaviour
         }
 
         var force = (Vector3.up * 2) + coinDir;
-        coinObj.rigidbody.AddForce(force);
+        coinObj.GetComponent<Rigidbody>().AddForce(force);
     }
 }

@@ -74,6 +74,8 @@ public class MyCharacterController : Player
 
     public bool RunnerEnable = false;
 
+    private Rigidbody _rigidbody;
+    private AudioSource _audio;
     private const int MaxQueueCount = 2;
     private const int MaxHistoryCount = 5;
     private bool _chargeCompleted = false;
@@ -131,6 +133,8 @@ public class MyCharacterController : Player
     protected override void Awake()
     {
         _instance = this;
+        _rigidbody = GetComponent<Rigidbody>();
+        _audio = GetComponent<AudioSource>();
         IsMyPlayer = true;
         base.Awake();
     }
@@ -509,28 +513,26 @@ public class MyCharacterController : Player
 
     private void SetPlayerVelocity(Vector3 playerDirection, bool withGravity = true)
     {
-
-
         if (Math.Abs(InputMovement.x) < float.Epsilon && Math.Abs(InputMovement.y) < float.Epsilon)
         {
             if (withGravity)
             {
                 if (_moveBack)
                 {
-                    rigidbody.velocity = new Vector3(0, rigidbody.velocity.y, 0);
+                    _rigidbody.velocity = new Vector3(0, _rigidbody.velocity.y, 0);
                 }
                 else
                 {
                     // (OrbitCameraScript != null && OrbitCameraScript.IsRotating)
-                    if (rigidbody != null && rigidbody.velocity != Vector3.zero)
+                    if (_rigidbody != null && _rigidbody.velocity != Vector3.zero)
                     {
-                        rigidbody.velocity = new Vector3(0, rigidbody.velocity.y, 0);
+                        _rigidbody.velocity = new Vector3(0, _rigidbody.velocity.y, 0);
                     }
                 }
             }
             else
             {
-                rigidbody.velocity = Vector3.zero;
+                _rigidbody.velocity = Vector3.zero;
             }
         }
         else
@@ -543,11 +545,11 @@ public class MyCharacterController : Player
                 {
                     if (withGravity)
                     {
-                        rigidbody.velocity = new Vector3(0, rigidbody.velocity.y, 0);
+                        _rigidbody.velocity = new Vector3(0, _rigidbody.velocity.y, 0);
                     }
                     else
                     {
-                        rigidbody.velocity = Vector3.zero;
+                        _rigidbody.velocity = Vector3.zero;
                     }
 
                     if (InputMovement.y > 0)
@@ -607,11 +609,11 @@ public class MyCharacterController : Player
                 }
 
 
-                rigidbody.AddForce(finalAccelerationForce);
+                _rigidbody.AddForce(finalAccelerationForce);
 
             }
 
-            var clamp = Vector3.ClampMagnitude(rigidbody.velocity, MaxMagnitudeSpeed);
+            var clamp = Vector3.ClampMagnitude(_rigidbody.velocity, MaxMagnitudeSpeed);
 
             //rigidbody.velocity = new Vector3(clamp.x, withGravity ? rigidbody.velocity.y : 0, clamp.z);
         }
@@ -634,7 +636,7 @@ public class MyCharacterController : Player
         }
         else
         {
-            _currentSpeed = (float)Math.Round((rigidbody.velocity.magnitude / MaxMagnitudeSpeed), 1);
+            _currentSpeed = (float)Math.Round((_rigidbody.velocity.magnitude / MaxMagnitudeSpeed), 1);
             if (CharAnimator != null)
             {
                 CharAnimator.SetBool("move_back", _moveBack);
@@ -901,7 +903,7 @@ public class MyCharacterController : Player
                     tdm.NBAttack = NBAttack.Sword;
                     tdm.RightAttack = true;
                     var selectedAudioSword = SwordAudioClips[Random.Range(0, SwordAudioClips.Length)];
-                    audio.PlayOneShot(selectedAudioSword);
+                    _audio.PlayOneShot(selectedAudioSword);
                     GiveDamage(tdm);
                 }
                 break;
@@ -912,7 +914,7 @@ public class MyCharacterController : Player
                     tdm.NBAttack = NBAttack.Sword;
                     tdm.RightAttack = false;
                     var selectedAudioSword = SwordAudioClips[Random.Range(0, SwordAudioClips.Length)];
-                    audio.PlayOneShot(selectedAudioSword);
+                    _audio.PlayOneShot(selectedAudioSword);
                     GiveDamage(tdm);
                 }
                 break;
@@ -924,9 +926,11 @@ public class MyCharacterController : Player
                     tdm.AttackTypes = AttackTypes.Weak;
                     tdm.NBAttack = NBAttack.Sword;
                     var selectedAudioSword = SwordAudioClips[Random.Range(0, SwordAudioClips.Length)];
-                    audio.PlayOneShot(selectedAudioSword);
+                    _audio.PlayOneShot(selectedAudioSword);
                     if (FocusEnemy != null)
-                        FocusEnemy.rigidbody.AddForce(-FocusEnemy.transform.forward * 1000f);
+                    {
+                        FocusEnemy.GetComponent<Rigidbody>().AddForce(-FocusEnemy.transform.forward * 1000f);
+                    }
                     GiveDamage(tdm);
                 }
                 break;
@@ -1127,7 +1131,7 @@ public class MyCharacterController : Player
     public void StopVelocity(bool withYAxe = false)
     {
         InputMovement = Vector2.zero;
-        rigidbody.velocity = new Vector3(0, withYAxe ? 0 : rigidbody.velocity.y, 0);
+        _rigidbody.velocity = new Vector3(0, withYAxe ? 0 : _rigidbody.velocity.y, 0);
     }
 
     /// <summary>
@@ -1249,15 +1253,15 @@ public class MyCharacterController : Player
                                     if (Grounded)
                                     {
                                         skillName = "right_sword_attack";
-                                        Instantiate(Resources.Load<GameObject>("Particles/RipEffectSimple"), this.transform.position + this.transform.forward, Quaternion.Euler(new Vector3(0, 0, -90)));
+                                        Instantiate(Resources.Load<GameObject>("Particles/RipEffectSimple"), transform.position + transform.forward, Quaternion.Euler(new Vector3(0, 0, -90)));
                                     }
                                     else
                                     {
                                         skillName = "left_sword_attack";
-                                        this.rigidbody.AddForce(Vector3.down * 400f);
-                                        this.audio.PlayOneShot(Resources.Load<AudioClip>("Audios/teleport2"));
-                                        Instantiate(Resources.Load<GameObject>("Particles/StaticChargeEffect"), this.transform.position + Vector3.down * 2.5f, Quaternion.identity);
-                                        Instantiate(Resources.Load<GameObject>("Particles/RipEffectSimple"), this.transform.position + this.transform.forward, Quaternion.identity);
+                                        _rigidbody.AddForce(Vector3.down * 400f);
+                                        _audio.PlayOneShot(Resources.Load<AudioClip>("Audios/teleport2"));
+                                        Instantiate(Resources.Load<GameObject>("Particles/StaticChargeEffect"), transform.position + Vector3.down * 2.5f, Quaternion.identity);
+                                        Instantiate(Resources.Load<GameObject>("Particles/RipEffectSimple"), transform.position + transform.forward, Quaternion.identity);
 
                                         //Vector3 explosionPos = transform.position;
                                         //Collider[] colliders = Physics.OverlapSphere(explosionPos, 5f);
@@ -1455,7 +1459,7 @@ public class MyCharacterController : Player
                 StopAttackCharge();
             }
 
-            rigidbody.velocity = Vector3.zero;
+            _rigidbody.velocity = Vector3.zero;
             // FocusEnemy = enemy;
 
             //CancelMyAttack();
@@ -1523,7 +1527,7 @@ public class MyCharacterController : Player
                 case "kamehameha":
                     var dir = (transform.position - model.Emitter.position).normalized;
                     dir.y = 2f;
-                    rigidbody.AddForce(dir * 200);
+                    _rigidbody.AddForce(dir * 200);
                     StartCoroutine(ReceiveKo());
                     Life -= 150f;
                     break;
@@ -1542,7 +1546,7 @@ public class MyCharacterController : Player
         transform.rotation = Quaternion.LookRotation(direction);
 
         var force = (direction + Vector3.up) * 400f;
-        rigidbody.AddForce(force);
+        _rigidbody.AddForce(force);
 
         yield return StartCoroutine(ReceiveKo());
 
@@ -1592,7 +1596,7 @@ public class MyCharacterController : Player
         //    KiChargeAudioSource.Play();
         //}
 
-        audio.PlayOneShot(Resources.Load<AudioClip>("Sounds/aura"));
+        _audio.PlayOneShot(Resources.Load<AudioClip>("Sounds/aura"));
 
         _kiMultiplicator = 20;
 
@@ -1615,7 +1619,7 @@ public class MyCharacterController : Player
         {
             if (CurrentCharState == CharacterMoveState.Flying)
             {
-                rigidbody.useGravity = true;
+                _rigidbody.useGravity = true;
             }
         }
         while (!Grounded)
@@ -1687,7 +1691,7 @@ private void ManageViewFinder (Vector2 inputMovement)
                 if (Grounded)
                 {
                     CurrentCharState = CharacterMoveState.Jumping;
-                    rigidbody.AddForce(new Vector3(0, JumpHeight, 0));
+                    _rigidbody.AddForce(new Vector3(0, JumpHeight, 0));
                     CharAnimator.SetTrigger("jump");
                     //audio.PlayOneShot(AudioController.AudioClips["jump"]);
                 }

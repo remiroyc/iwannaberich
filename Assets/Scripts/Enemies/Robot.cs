@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Globalization;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,17 +17,24 @@ namespace Assets.Scripts.Enemies
         public string OperationName;
         public float OperationValue;
 
+        private AudioSource _audio;
+        private Rigidbody _rigidbody;
+
         private void Start()
         {
             RandomAction();
         }
 
+        protected override void Awake()
+        {
+            _audio = GetComponent<AudioSource>();
+            _rigidbody = GetComponent<Rigidbody>();
+            base.Awake();
+        }
+
         protected override void Update()
         {
-
-            Debug.Log(CurrentAction + " " + Attacking);
-
-            var renderers = this.GetComponentsInChildren<Renderer>();
+            var renderers = GetComponentsInChildren<Renderer>();
             foreach (var childRenderer in renderers)
             {
                 childRenderer.material.SetColor("_Color", Gradient.Evaluate(Life / MaxLife));
@@ -207,7 +215,7 @@ namespace Assets.Scripts.Enemies
                             GettingHit = true;
                             Life -= 200;
                             CharAnimator.Play("ReceivePunchComboAttack");
-                            rigidbody.AddForce(Vector3.up * 10f);
+                            _rigidbody.AddForce(Vector3.up * 10f);
                             RandomAction();
                         }
                         break;
@@ -284,7 +292,7 @@ namespace Assets.Scripts.Enemies
             OperationValue = opValue;
 
             lb_opName.text = opName;
-            lb_opValue.text = "-" + opValue.ToString();
+            lb_opValue.text = "-" + opValue;
 
             //On change la couleur de fond en fonction de la value
             if (opValue < 20)
@@ -317,13 +325,16 @@ namespace Assets.Scripts.Enemies
         protected override void Die()
         {
             base.Die();
-            transform.audio.PlayOneShot(Resources.Load<AudioClip>("Audios/Bip"));
-
+            var bip = Resources.Load<AudioClip>("Audios/Bip");
+            if (bip != null)
+            {
+                _audio.PlayOneShot(bip);
+            }
             GameManager.instance.Coins += OperationValue;
             var obj = (GameObject)Instantiate(MyCharacterController.Instance.SmashTextObject, Vector3.zero, Quaternion.identity);
             obj.SetActive(true);
             var text = obj.GetComponent<Text>();
-            text.text = "+ " + OperationValue.ToString();
+            text.text = "+ " + OperationValue.ToString(CultureInfo.InvariantCulture);
             text.color = Color.green;
             obj.transform.parent = MyCharacterController.Instance.MainCanvas.transform;
         }

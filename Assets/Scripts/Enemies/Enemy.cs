@@ -32,6 +32,8 @@ public abstract class Enemy : Player, IArtificialIntelligenceAttack
     protected bool CloseCombat;
     protected bool ActivateEndOfAnimationTrigger = false;
 
+    private Rigidbody _rigidbody;
+    private AudioSource _audio;
     private Vector3 _destinationPos;
     private int _currentAttackState;
     private bool _checkEndAnim;
@@ -48,6 +50,13 @@ public abstract class Enemy : Player, IArtificialIntelligenceAttack
     public float DodgeProbability { get { return 0.666f * Agility; } }
 
     #region MONO BEHAVIOUR METHODS
+
+    protected override void Awake()
+    {
+        _rigidbody = GetComponent<Rigidbody>();
+        _audio = GetComponent<AudioSource>();
+        base.Awake();
+    }
 
     protected override void Update()
     {
@@ -114,7 +123,7 @@ public abstract class Enemy : Player, IArtificialIntelligenceAttack
             {
                 CurrentAction = EnemyActions.Idle;
                 _navMeshAgent.Stop();
-                rigidbody.velocity = Vector3.zero;
+                _rigidbody.velocity = Vector3.zero;
 
                 if (CanAttack)
                 {
@@ -332,7 +341,7 @@ public abstract class Enemy : Player, IArtificialIntelligenceAttack
             var blast = Resources.Load<GameObject>("Prefabs/Fireball");
             Instantiate(blast, RightAttack ? RightHand.position : LeftHand.position, rot);
             RightAttack = !RightAttack;
-            audio.PlayOneShot(Resources.Load<AudioClip>("Sounds/kiblast"));
+            _audio.PlayOneShot(Resources.Load<AudioClip>("Sounds/kiblast"));
             yield return new WaitForSeconds(0.6f);
         }
         Attacking = false;
@@ -407,7 +416,7 @@ public abstract class Enemy : Player, IArtificialIntelligenceAttack
     /// </summary>
     public virtual void Dodge()
     {
-        audio.PlayOneShot(Resources.Load<AudioClip>("Sounds/Generic/Attack/meleemiss1"));
+        _audio.PlayOneShot(Resources.Load<AudioClip>("Sounds/Generic/Attack/meleemiss1"));
 
         if (Random.value > 0.2f && CanAttack)
         {
@@ -466,14 +475,14 @@ public abstract class Enemy : Player, IArtificialIntelligenceAttack
     {
         if (TpSprite != null)
         {
-            var tpSprite = Instantiate(TpSprite, this.transform.position, this.transform.rotation) as GameObject;
+            var tpSprite = Instantiate(TpSprite, transform.position, transform.rotation) as GameObject;
             Destroy(tpSprite, 0.2f);
         }
 
         transform.position = MyCharacterController.Instance.transform.position - MyCharacterController.Instance.transform.forward;
         transform.LookAt(MyCharacterController.Instance.transform);
         // Ajouter le son du tp ici
-        audio.PlayOneShot(Resources.Load<AudioClip>("Sounds/teleport"));
+        _audio.PlayOneShot(Resources.Load<AudioClip>("Sounds/teleport"));
 
         //yield return new WaitForSeconds(.1f);
 

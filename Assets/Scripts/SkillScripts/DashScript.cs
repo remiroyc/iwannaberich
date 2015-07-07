@@ -181,7 +181,8 @@ public class DashScript : SkillBase
 
         var dashAttackSound = Resources.Load("Sounds/pain2") as AudioClip;
         AudioSource.PlayClipAtPoint(dashAttackSound, transform.position);
-        rigidbody.velocity = new Vector3(0, rigidbody.velocity.y, 0);
+        var body = GetComponent<Rigidbody>();
+        body.velocity = new Vector3(0, body.velocity.y, 0);
 
         MyCharacterController.Instance.CharAnimator.SetTrigger("dash_attack");
 
@@ -200,7 +201,7 @@ public class DashScript : SkillBase
         var enemyScript = MyCharacterController.Instance.FocusEnemy.GetComponent<Enemy>();
         enemyScript.Refocus();
 
-        MyCharacterController.Instance.FocusEnemy.rigidbody.AddForce((Vector3.up + transform.forward) * 400);
+        MyCharacterController.Instance.FocusEnemy.GetComponent<Rigidbody>().AddForce((Vector3.up + transform.forward) * 400);
         enemyScript.ApplyDamage(new TakeDamageModel()
         {
             SkillName = "dash_attack",

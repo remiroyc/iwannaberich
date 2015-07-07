@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine;
 
 public class OrbitCamera : MonoBehaviour
 {
@@ -230,11 +228,11 @@ public class OrbitCamera : MonoBehaviour
         }
 
         // get Mouse Wheel Input
-        if (Input.GetAxis("Mouse ScrollWheel") < -deadZone || Input.GetAxis("Mouse ScrollWheel") > deadZone)
-        {
-            _desiredDistance = Mathf.Clamp(Distance - (Input.GetAxis("Mouse ScrollWheel") * MouseWheelSensitivity),
-                                                      DistanceMin, DistanceMax);
-        }
+        //if (Input.GetAxis("Mouse ScrollWheel") < -deadZone || Input.GetAxis("Mouse ScrollWheel") > deadZone)
+        //{
+        //    _desiredDistance = Mathf.Clamp(Distance - (Input.GetAxis("Mouse ScrollWheel") * MouseWheelSensitivity),
+        //                                              DistanceMin, DistanceMax);
+        //}
 
 #endif
 

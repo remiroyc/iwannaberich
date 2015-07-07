@@ -70,8 +70,8 @@ public class TileManager : MonoBehaviour
             case TileType.Moving:
                 if (!_hasMoved)
                 {
-                    this.transform.Translate(Vector3.left * 5f);
-                    this.collider.isTrigger = false;
+                    transform.Translate(Vector3.left * 5f);
+                    GetComponent<Collider>().isTrigger = false;
                     MyCharacterController.Instance.CurrentCharState = CharacterMoveState.Jumping;
                     _hasMoved = true;
                 }

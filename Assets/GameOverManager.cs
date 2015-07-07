@@ -104,7 +104,7 @@ public class GameOverManager : MonoBehaviour
 
 
         lb_gameOver.enabled = false;
-        MyCharacterController.Instance.rigidbody.velocity = Vector3.zero;
+        MyCharacterController.Instance.GetComponent<Rigidbody>().velocity = Vector3.zero;
 
         MyCharacterController.Instance.Life = initLife;
         MyCharacterController.Instance.transform.position = respawnPoint.transform.position;

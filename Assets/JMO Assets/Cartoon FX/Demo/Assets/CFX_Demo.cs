@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
@@ -53,17 +54,17 @@ public class CFX_Demo : MonoBehaviour
 	
 	void OnMouseDown()
 	{
-		RaycastHit hit = new RaycastHit();
-		if(this.collider.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 9999f))
+		RaycastHit hit;
+		if(GetComponent<Collider>().Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 9999f))
 		{
-			GameObject particle = spawnParticle();
+			var particle = SpawnParticle();
 			particle.transform.position = hit.point + particle.transform.position;
 		}
 	}
 	
-	private GameObject spawnParticle()
+	private GameObject SpawnParticle()
 	{
-		GameObject particles = (GameObject)Instantiate(ParticleExamples[exampleIndex]);
+		var particles = (GameObject)Instantiate(ParticleExamples[exampleIndex]);
 		
 		#if UNITY_3_5
 			particles.SetActiveRecursively(true);
@@ -73,16 +74,8 @@ public class CFX_Demo : MonoBehaviour
 				particles.transform.GetChild(i).gameObject.SetActive(true);
 		#endif
 		
-		float Y = 0.0f;
-		foreach(KeyValuePair<string,float> kvp in ParticlesYOffsetD)
-		{
-			if(particles.name.StartsWith(kvp.Key))
-			{
-				Y = kvp.Value;
-				break;
-			}
-		}
-		particles.transform.position = new Vector3(0,Y,0);
+		var y = (from kvp in ParticlesYOffsetD where particles.name.StartsWith(kvp.Key) select kvp.Value).FirstOrDefault();
+	    particles.transform.position = new Vector3(0,y,0);
 		
 		return particles;
 	}
@@ -120,10 +113,12 @@ public class CFX_Demo : MonoBehaviour
 		
 		randomSpawnsDelay = GUILayout.TextField(randomSpawnsDelay, 10, GUILayout.Width(42));
 		randomSpawnsDelay = Regex.Replace(randomSpawnsDelay, @"[^0-9.]", "");
-		
-		if(GUILayout.Button(this.renderer.enabled ? "Hide Ground" : "Show Ground", GUILayout.Width(90)))
+
+	    var localRenderer = GetComponent<Renderer>();
+
+        if (GUILayout.Button(localRenderer.enabled ? "Hide Ground" : "Show Ground", GUILayout.Width(90)))
 		{
-			this.renderer.enabled = !this.renderer.enabled;
+            localRenderer.enabled = !localRenderer.enabled;
 		}
 		
 		if(GUILayout.Button(slowMo ? "Normal Speed" : "Slow Motion", GUILayout.Width(100)))
@@ -141,7 +136,7 @@ public class CFX_Demo : MonoBehaviour
 	{
 		
 	LOOP:
-		GameObject particles = spawnParticle();
+		GameObject particles = SpawnParticle();
 		
 		if(orderedSpawns)
 		{
@@ -174,9 +169,9 @@ public class CFX_Demo : MonoBehaviour
 		if(exampleIndex < 0) exampleIndex = ParticleExamples.Length - 1;
 		
 		if(ParticleExamples[exampleIndex].name.Contains("Splash") || ParticleExamples[exampleIndex].name == "CFX_Ripple" || ParticleExamples[exampleIndex].name == "CFX_Fountain")
-			this.renderer.material = waterMat;
+			GetComponent<Renderer>().material = waterMat;
 		else
-			this.renderer.material = groundMat;
+            GetComponent<Renderer>().material = groundMat;
 	}
 	private void nextParticle()
 	{
@@ -184,8 +179,8 @@ public class CFX_Demo : MonoBehaviour
 		if(exampleIndex >= ParticleExamples.Length) exampleIndex = 0;
 		
 		if(ParticleExamples[exampleIndex].name.Contains("Splash") || ParticleExamples[exampleIndex].name == "CFX_Ripple" || ParticleExamples[exampleIndex].name == "CFX_Fountain")
-			this.renderer.material = waterMat;
+            GetComponent<Renderer>().material = waterMat;
 		else
-			this.renderer.material = groundMat;
+            GetComponent<Renderer>().material = groundMat;
 	}
 }
