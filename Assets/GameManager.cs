@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -78,17 +77,6 @@ public class GameManager : MonoBehaviour
     {
         CoinSlider.minValue = MinCoins;
         CoinSlider.maxValue = MaxCoins;
-
-        if (PlayerPlanManager.Instance.PlayerPlanSub.Any(p => p.Plan == PlayerPlan.AssuranceVie && p.Enable))
-        {
-
-        }
-
-        //if (PlayerPlanManager.Instance.PlayerPlanSub.Any(o => o.Plan == PlayerPlan.AssuranceVie && o.Enable))
-        //{
-        //    Debug.Log("POUVOIR ASSURANCE VIE ACTIVE");
-        //    return;
-        //}
     }
 
 

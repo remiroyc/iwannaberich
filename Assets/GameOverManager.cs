@@ -63,20 +63,10 @@ public class GameOverManager : MonoBehaviour
 
     public void GameOver(GameObject respawnPoint = null)
     {
-        Debug.Log("GameOVer");
-
         MyCharacterController.Instance.Life = 0;
-
-        if (PlayerPlanManager.Instance.PlayerPlanSub.Any(o => o.Plan == PlayerPlan.AssuranceVie && o.Enable))
-        {
-            StartCoroutine(respawnPoint == null ? PerformRespawn(GameObject.Find("RespawnPoint1")) : PerformRespawn(respawnPoint));
-            return;
-        }
-
         nbOfLives--;
         lb_vie_value = GameObject.Find("lb_vie_value").GetComponent<Text>();
         lb_vie_value.text = nbOfLives.ToString(CultureInfo.InvariantCulture);
-
         StartCoroutine(respawnPoint == null ? PerformRespawn(GameObject.Find("RespawnPoint1")) : PerformRespawn(respawnPoint));
     }
 

@@ -170,9 +170,11 @@ public class StingerAttack : SkillBase
                 MyCharacterController.Instance.transform.LookAt(collision.transform);
 
                 var meshAgent = collision.transform.GetComponent<NavMeshAgent>();
-                meshAgent.Stop();
-                meshAgent.enabled = false;
-
+                if (meshAgent.isActiveAndEnabled)
+                {
+                    meshAgent.Stop();
+                    // meshAgent.enabled = false;
+                }
                 StartCoroutine(AutoAttack(collision.transform));
             }
             else

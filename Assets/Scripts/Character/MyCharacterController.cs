@@ -67,8 +67,8 @@ public class MyCharacterController : Player
     public Text ComboText, ComboHistory;
     public Button SwordButton;
     public Quaternion InitialRotation;
-
     public GameObject CombatRipParticle;
+
 
     #endregion
 
@@ -179,7 +179,6 @@ public class MyCharacterController : Player
         InvokeRepeating("Cloak", 1, 1);
     }
 
-    // ReSharper disable once UnusedMember.Local
     private void Start()
     {
 
@@ -239,7 +238,6 @@ public class MyCharacterController : Player
 
     }
 
-    // ReSharper disable once UnusedMember.Local
     private void FixedUpdate()
     {
 
@@ -281,7 +279,7 @@ public class MyCharacterController : Player
 
                 case CharacterMoveState.Classic:
 
-                    SetPlayerVelocity(transform.forward);
+                    SetPlayerVelocity(transform.forward, true);
 
                     if (!Grounded)
                     {
@@ -334,7 +332,6 @@ public class MyCharacterController : Player
 
     }
 
-    // ReSharper disable once UnusedMember.Local
     private void LateUpdate()
     {
         //LoadKi();
@@ -572,38 +569,41 @@ public class MyCharacterController : Player
 
                 if (!AutoFocus.AutoFocus)
                 {
-                    if (Math.Abs(InputMovement.x) > float.Epsilon)
-                    {
-                        if (InputMovement.x > 0)
-                        {
-                            if (CurrentCharState == CharacterMoveState.Falling)
-                            {
-                                finalAccelerationForce += transform.right * AccelerationSpeed * 15;
-                            }
-                            else
-                            {
-                                finalAccelerationForce += (transform.right * AccelerationSpeed *
-                                                           (InputMovement.y > 0 ? 500 : 50) * Time.deltaTime);
-                            }
-                        }
-                        else
-                        {
 
-                            if (CurrentCharState == CharacterMoveState.Falling)
-                            {
-                                finalAccelerationForce += -transform.right * AccelerationSpeed * 15;
-                            }
-                            else
-                            {
-                                finalAccelerationForce += (-transform.right * AccelerationSpeed *
-                                                           (InputMovement.y > 0 ? 500 : 50) * Time.deltaTime);
-                            }
-                        }
+                    var newPosition = transform.position + (transform.right * InputMovement.x * Time.deltaTime * 8);
+                    _rigidbody.MovePosition(newPosition);
 
-                        // Debug.Log(finalAccelerationForce);
-                        // Debug.Break();
 
-                    }
+                    //if (Math.Abs(InputMovement.x) > float.Epsilon)
+                    //{
+                    //    if (InputMovement.x > 0)
+                    //    {
+                    //        if (CurrentCharState == CharacterMoveState.Falling)
+                    //        {
+                    //            finalAccelerationForce += transform.right * AccelerationSpeed * 15;
+                    //        }
+                    //        else
+                    //        {
+                    //            finalAccelerationForce += (transform.right * AccelerationSpeed * Time.deltaTime);
+                    //        }
+                    //    }
+                    //    else
+                    //    {
+
+                    //        if (CurrentCharState == CharacterMoveState.Falling)
+                    //        {
+                    //            finalAccelerationForce += -transform.right * AccelerationSpeed * 15;
+                    //        }
+                    //        else
+                    //        {
+                    //            finalAccelerationForce += (-transform.right * AccelerationSpeed * Time.deltaTime);
+                    //        }
+                    //    }
+
+                    //    // Debug.Log(finalAccelerationForce);
+                    //    // Debug.Break();
+
+                    //}
                 }
 
 
@@ -1157,7 +1157,7 @@ public class MyCharacterController : Player
         {
             if (_comboQueue.Count > 0)
             {
-                if (!Attacking)
+                if (!Attacking && !RunnerEnable)
                 {
 
                     //--GameManager.instance.Coins;
@@ -1435,8 +1435,6 @@ public class MyCharacterController : Player
         }
         CharAnimator.speed = 1;
     }
-
-
 
     /// <summary>
     /// Méthode qui gère les coups/attaque que subit notre personnage (permet de lancer nottament les animations associées).
